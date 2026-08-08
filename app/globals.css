@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --fg: #101114;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0c0e;
+    --fg: #f2f3f5;
+    --muted: #9aa0a6;
+    --border: #23262b;
+    --card: #131519;
+  }
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
