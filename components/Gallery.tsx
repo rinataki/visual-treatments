@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { registry, defaultParams } from "@/lib/registry";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, categoryColor } from "@/lib/categories";
 import type { Category } from "@/lib/treatment-schema";
 
 type Filter = "all" | Category;
@@ -54,26 +54,78 @@ export function Gallery() {
             <Link
               key={slug}
               href={`/${slug}`}
-              className="group overflow-hidden rounded-xl border border-[var(--border)] transition-colors hover:border-[var(--fg)]"
+              className="group block overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] transition-transform duration-200 hover:-translate-y-0.5"
             >
+              {/* Full-bleed live preview thumbnail */}
               <div
-                className="relative h-44 overflow-hidden"
+                className="relative m-1.5 h-48 overflow-hidden rounded-xl"
                 style={{ background: meta.previewBackground }}
               >
                 <Demo params={defaultParams(meta)} />
               </div>
-              <div className="p-4">
-                <div className="mb-1 flex items-center gap-2">
-                  <h2 className="font-medium">{meta.name}</h2>
-                  <span className="text-xs text-[var(--muted)]">{meta.category}</span>
+
+              {/* Footer: icon · title/meta · swatch */}
+              <div className="flex items-center gap-3 px-4 py-3.5">
+                <CategoryIcon category={meta.category} />
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate font-mono text-sm font-semibold tracking-tight">
+                    {meta.name}
+                  </h2>
+                  <p className="font-mono text-xs text-[var(--muted)]">
+                    {meta.category} · {meta.implementations.length}{" "}
+                    {meta.implementations.length === 1 ? "method" : "methods"}
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--muted)]">{meta.description}</p>
+                <span
+                  className="h-8 w-8 shrink-0 rounded-full border border-[var(--border)]"
+                  style={{ background: meta.previewBackground }}
+                  aria-hidden
+                />
               </div>
             </Link>
           ))}
         </div>
       )}
     </>
+  );
+}
+
+// Small app-style icon: a rounded square in the category color with a simple
+// white glyph, echoing the reference file-card layout.
+function CategoryIcon({ category }: { category: Category }) {
+  const glyph: Record<Category, React.ReactNode> = {
+    texture: (
+      <>
+        <circle cx="6" cy="6" r="1" /><circle cx="12" cy="6" r="1" /><circle cx="18" cy="6" r="1" />
+        <circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="6" cy="18" r="1" />
+        <circle cx="12" cy="18" r="1" /><circle cx="18" cy="18" r="1" />
+      </>
+    ),
+    material: <circle cx="12" cy="12" r="6" />,
+    pattern: (
+      <>
+        <circle cx="7" cy="7" r="1.6" /><circle cx="17" cy="7" r="1.6" />
+        <circle cx="7" cy="17" r="1.6" /><circle cx="17" cy="17" r="1.6" />
+      </>
+    ),
+    lighting: (
+      <>
+        <circle cx="12" cy="12" r="3.5" />
+        <path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M18 18l-2-2M18 6l-2 2M6 18l2-2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      </>
+    ),
+    typography: <text x="12" y="17" textAnchor="middle" fontSize="15" fontWeight="700" fontFamily="ui-monospace, monospace">A</text>,
+    motion: <path d="M8 6l10 6-10 6z" />,
+  };
+  return (
+    <span
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white"
+      style={{ background: categoryColor(category) }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        {glyph[category]}
+      </svg>
+    </span>
   );
 }
 
