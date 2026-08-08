@@ -7,6 +7,7 @@
 
 export type Category =
   | "texture"
+  | "material"
   | "pattern"
   | "lighting"
   | "typography"
