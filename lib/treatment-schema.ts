@@ -91,6 +91,11 @@ export interface TreatmentMeta {
   feelings: Feeling[];
   controls: Control[];
   previewBackground?: string;
+  // "background" (default) fills a surface; "text" styles a sample word. Text
+  // treatments render editable sample text in the preview (passed to the demo
+  // as params.__text) and their card shows the styled word instead of a fill.
+  surface?: "background" | "text";
+  sampleText?: string;              // default preview word for text treatments
 }
 
 export interface Treatment extends TreatmentMeta {

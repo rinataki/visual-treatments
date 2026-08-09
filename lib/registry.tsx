@@ -17,6 +17,12 @@ import { halftone } from "@/treatments/halftone/metadata";
 import { Demo as HalftoneDemo } from "@/treatments/halftone/demo";
 import { orderedDither } from "@/treatments/ordered-dither/metadata";
 import { Demo as OrderedDitherDemo } from "@/treatments/ordered-dither/demo";
+import { outline } from "@/treatments/outline/metadata";
+import { Demo as OutlineDemo } from "@/treatments/outline/demo";
+import { marker } from "@/treatments/marker/metadata";
+import { Demo as MarkerDemo } from "@/treatments/marker/demo";
+import { gradientText } from "@/treatments/gradient-text/metadata";
+import { Demo as GradientTextDemo } from "@/treatments/gradient-text/demo";
 
 export interface RegistryEntry {
   meta: Treatment;
@@ -33,6 +39,9 @@ export const registry: Record<string, RegistryEntry> = {
   crosshatch: { meta: crosshatch, Demo: CrosshatchDemo },
   halftone: { meta: halftone, Demo: HalftoneDemo },
   "ordered-dither": { meta: orderedDither, Demo: OrderedDitherDemo },
+  outline: { meta: outline, Demo: OutlineDemo },
+  marker: { meta: marker, Demo: MarkerDemo },
+  "gradient-text": { meta: gradientText, Demo: GradientTextDemo },
 };
 
 export const allTreatments = Object.values(registry).map((e) => e.meta);
@@ -41,5 +50,13 @@ export const allTreatments = Object.values(registry).map((e) => e.meta);
 export function defaultParams(meta: Treatment): ParamValues {
   const params: ParamValues = {};
   for (const c of meta.controls) params[c.key] = c.default;
+  return params;
+}
+
+// Params for a static preview (gallery card): defaults plus the sample word for
+// text treatments, under the reserved `__text` key the demos read.
+export function previewParams(meta: Treatment): ParamValues {
+  const params = defaultParams(meta);
+  if (meta.surface === "text") params.__text = meta.sampleText ?? "Aa";
   return params;
 }

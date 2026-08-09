@@ -10,11 +10,15 @@ import type { ParamValues } from "@/lib/treatment-schema";
 export function TreatmentView({ slug }: { slug: string }) {
   const entry = registry[slug];
   const { meta, Demo } = entry;
+  const isText = meta.surface === "text";
   const [params, setParams] = useState<ParamValues>(() => defaultParams(meta));
+  const [sample, setSample] = useState(meta.sampleText ?? "Aa");
 
   function onChange(key: string, value: number | string | boolean) {
     setParams((p) => ({ ...p, [key]: value }));
   }
+
+  const demoParams = isText ? { ...params, __text: sample } : params;
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -46,7 +50,7 @@ export function TreatmentView({ slug }: { slug: string }) {
           className="relative min-h-[340px] overflow-hidden rounded-lg border border-[var(--border)]"
           style={{ background: meta.previewBackground }}
         >
-          <Demo params={params} />
+          <Demo params={demoParams} />
         </div>
 
         {/* Controls */}
@@ -54,6 +58,19 @@ export function TreatmentView({ slug }: { slug: string }) {
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
             Controls
           </h2>
+          {isText && (
+            <div className="mb-5 flex flex-col gap-1.5">
+              <label htmlFor="sample" className="text-sm font-medium">
+                Sample text
+              </label>
+              <input
+                id="sample"
+                value={sample}
+                onChange={(e) => setSample(e.target.value)}
+                className="h-9 rounded border border-[var(--border)] bg-transparent px-2 text-sm"
+              />
+            </div>
+          )}
           <Controls controls={meta.controls} params={params} onChange={onChange} />
         </aside>
       </div>

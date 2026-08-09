@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { registry, defaultParams } from "@/lib/registry";
+import { registry, previewParams } from "@/lib/registry";
 import { CATEGORIES, categoryColor } from "@/lib/categories";
 import type { Category } from "@/lib/treatment-schema";
 
@@ -61,7 +61,7 @@ export function Gallery() {
                 className="relative m-1.5 h-48 overflow-hidden rounded-xl"
                 style={{ background: meta.previewBackground }}
               >
-                <Demo params={defaultParams(meta)} />
+                <Demo params={previewParams(meta)} />
               </div>
 
               {/* Footer: icon · title/meta · swatch */}
