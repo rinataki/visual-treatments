@@ -25,6 +25,11 @@ code you copy matches what you see — without any code generation. See
 [`lib/treatment-schema.ts`](./lib/treatment-schema.ts) for the schema and the
 `interpolate()` engine.
 
+Tuned settings live in the query string, so any state you can see you can send:
+`?tilt=18&fill=%23ffbf00`. Only non-default values are written, and everything
+read back is validated against the control that owns it — see
+[`lib/share-state.ts`](./lib/share-state.ts).
+
 ## Develop
 
 ```bash
@@ -40,8 +45,19 @@ Open http://localhost:3000.
 2. Create `treatments/<slug>/demo.tsx` exporting a `Demo({ params })` component.
 3. Register both in [`lib/registry.tsx`](./lib/registry.tsx).
 
-That's it — the gallery card, treatment page, controls, and copy buttons are
-all generated from the metadata.
+That's it — the gallery card, treatment page, controls, search, and copy buttons
+are all generated from the metadata.
+
+Two conventions are worth keeping:
+
+- **Author each token so its raw substituted value is a valid literal** in the
+  target language. Ranges get their `unit` appended, so a `px` range lands as
+  `24px`; a select's `value` should already be the CSS keyword. Derive related
+  values with `calc()` in the template rather than adding a slider per layer.
+- **Keep `demo.tsx` and the CSS snippet in lockstep.** The demo is the claim the
+  snippet makes; if they drift, the copy button lies. `@keyframes` can't be
+  expressed inline, so motion demos ship the rule in a `<style>` tag with a
+  globally unique name.
 
 ## Stack
 

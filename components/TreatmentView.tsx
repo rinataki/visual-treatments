@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { registry, defaultParams } from "@/lib/registry";
 import { Controls } from "@/components/Controls";
 import { CodeBlock } from "@/components/CodeBlock";
+import { paramsFromQuery, queryFromParams } from "@/lib/share-state";
 import type { ParamValues } from "@/lib/treatment-schema";
 
 export function TreatmentView({ slug }: { slug: string }) {
@@ -13,6 +14,33 @@ export function TreatmentView({ slug }: { slug: string }) {
   const isText = meta.surface === "text";
   const [params, setParams] = useState<ParamValues>(() => defaultParams(meta));
   const [sample, setSample] = useState(meta.sampleText ?? "Aa");
+
+  // The URL is hydrated *after* mount, not during render: the server has no
+  // query string, so reading it in the initial state would desync hydration.
+  // Until this has run, writing back is suppressed — otherwise the first effect
+  // pass would clear an incoming shared link before we ever read it.
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const { params: fromUrl, sample: fromUrlText } = paramsFromQuery(
+      meta,
+      window.location.search,
+      defaultParams(meta),
+    );
+    setParams(fromUrl);
+    if (fromUrlText !== null) setSample(fromUrlText);
+    setHydrated(true);
+  }, [meta]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const query = queryFromParams(meta, params, isText ? sample : null);
+    window.history.replaceState(
+      null,
+      "",
+      query ? `${window.location.pathname}?${query}` : window.location.pathname,
+    );
+  }, [meta, params, sample, isText, hydrated]);
 
   function onChange(key: string, value: number | string | boolean) {
     setParams((p) => ({ ...p, [key]: value }));
@@ -55,9 +83,12 @@ export function TreatmentView({ slug }: { slug: string }) {
 
         {/* Controls */}
         <aside>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-            Controls
-          </h2>
+          <div className="mb-4 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+              Controls
+            </h2>
+            <ShareButton />
+          </div>
           {isText && (
             <div className="mb-5 flex flex-col gap-1.5">
               <label htmlFor="sample" className="text-sm font-medium">
@@ -86,5 +117,27 @@ export function TreatmentView({ slug }: { slug: string }) {
         />
       </section>
     </main>
+  );
+}
+
+// Copies whatever is in the address bar — which the effect above keeps in sync
+// with the canvas, so there is nothing to serialize here.
+function ShareButton() {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <button
+      onClick={copy}
+      title="Copy a link to this treatment with your current settings"
+      className="text-xs font-medium text-[var(--muted)] transition-colors hover:text-[var(--fg)]"
+    >
+      {copied ? "Link copied ✓" : "Copy link"}
+    </button>
   );
 }

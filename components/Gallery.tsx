@@ -4,36 +4,77 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { registry, previewParams } from "@/lib/registry";
 import { CATEGORIES, categoryColor } from "@/lib/categories";
-import type { Category } from "@/lib/treatment-schema";
+import type { Category, Treatment } from "@/lib/treatment-schema";
 
 type Filter = "all" | Category;
 
+// Free-text match across everything a browser might reasonably type: the name,
+// the one-line description, the subcategory, and the feeling vocabulary. Terms
+// are ANDed, so "warm paper" narrows rather than widens.
+function matches(meta: Treatment, query: string): boolean {
+  if (!query) return true;
+  const haystack = [
+    meta.name,
+    meta.slug,
+    meta.description,
+    meta.category,
+    meta.subcategory ?? "",
+    ...meta.feelings,
+  ]
+    .join(" ")
+    .toLowerCase();
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((term) => haystack.includes(term));
+}
+
 export function Gallery() {
   const [filter, setFilter] = useState<Filter>("all");
+  const [query, setQuery] = useState("");
   const entries = Object.entries(registry);
 
-  // Count treatments per category once.
+  // Counts are computed over the SEARCH result, not the whole registry, so a
+  // chip never advertises rows the current query would filter away.
+  const found = useMemo(
+    () => entries.filter(([, { meta }]) => matches(meta, query)),
+    [entries, query],
+  );
+
   const counts = useMemo(() => {
     const c: Partial<Record<Category, number>> = {};
-    for (const [, { meta }] of entries) {
+    for (const [, { meta }] of found) {
       c[meta.category] = (c[meta.category] ?? 0) + 1;
     }
     return c;
-  }, [entries]);
+  }, [found]);
 
-  const visible = entries.filter(
+  const visible = found.filter(
     ([, { meta }]) => filter === "all" || meta.category === filter,
   );
 
   return (
     <>
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search treatments — try “warm”, “glass”, “grain”…"
+          aria-label="Search treatments"
+          className="h-10 w-full rounded-full border border-[var(--border)] bg-[var(--card)] px-4 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--fg)]"
+        />
+      </div>
+
       {/* Filter bar */}
       <div className="mb-8 flex flex-wrap gap-2">
         <Chip
           active={filter === "all"}
           onClick={() => setFilter("all")}
           label="All"
-          count={entries.length}
+          count={found.length}
         />
         {CATEGORIES.map((cat) => (
           <Chip
@@ -47,7 +88,11 @@ export function Gallery() {
       </div>
 
       {visible.length === 0 ? (
-        <EmptyState category={filter} />
+        query ? (
+          <NoResults query={query} onClear={() => setQuery("")} />
+        ) : (
+          <EmptyState category={filter} />
+        )
       ) : (
         <div className="grid gap-6 sm:grid-cols-2">
           {visible.map(([slug, { meta, Demo }]) => (
@@ -116,6 +161,11 @@ function CategoryIcon({ category }: { category: Category }) {
     ),
     typography: <text x="12" y="17" textAnchor="middle" fontSize="15" fontWeight="700" fontFamily="ui-monospace, monospace">A</text>,
     motion: <path d="M8 6l10 6-10 6z" />,
+    embellishment: (
+      <>
+        <path d="M12 3.5l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 9.2l5.4-.8z" />
+      </>
+    ),
   };
   return (
     <span
@@ -178,6 +228,23 @@ function EmptyState({ category }: { category: Filter }) {
       >
         Contribute one →
       </a>
+    </div>
+  );
+}
+
+function NoResults({ query, onClear }: { query: string; onClear: () => void }) {
+  return (
+    <div className="rounded-xl border border-dashed border-[var(--border)] p-12 text-center">
+      <p className="mb-1 font-medium">No match for “{query}”</p>
+      <p className="mx-auto max-w-md text-sm text-[var(--muted)]">
+        Search covers names, descriptions and the feeling vocabulary.
+      </p>
+      <button
+        onClick={onClear}
+        className="mt-4 text-sm underline decoration-[var(--border)] underline-offset-4 hover:decoration-[var(--fg)]"
+      >
+        Clear search
+      </button>
     </div>
   );
 }

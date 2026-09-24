@@ -16,6 +16,7 @@ export const CATEGORIES: {
   { key: "lighting", label: "Lighting", blurb: "Glow, backlight, shadow", color: "#f59e0b" },
   { key: "typography", label: "Typography", blurb: "Marker, outline", color: "#8b5cf6" },
   { key: "motion", label: "Motion", blurb: "Animated grain, floating noise", color: "#ec4899" },
+  { key: "embellishment", label: "Embellishments", blurb: "Stickers, tape, stamps, folds", color: "#14b8a6" },
 ];
 
 export const categoryColor = (key: Category): string =>
