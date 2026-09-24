@@ -11,7 +11,8 @@ export type Category =
   | "pattern"
   | "lighting"
   | "typography"
-  | "motion";
+  | "motion"
+  | "embellishment";
 
 // Curated, closed vocabulary — these become browse filters, so keep it small.
 export type Feeling =

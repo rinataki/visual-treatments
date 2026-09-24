@@ -23,6 +23,26 @@ import { marker } from "@/treatments/marker/metadata";
 import { Demo as MarkerDemo } from "@/treatments/marker/demo";
 import { gradientText } from "@/treatments/gradient-text/metadata";
 import { Demo as GradientTextDemo } from "@/treatments/gradient-text/demo";
+import { sticker } from "@/treatments/sticker/metadata";
+import { Demo as StickerDemo } from "@/treatments/sticker/demo";
+import { washiTape } from "@/treatments/washi-tape/metadata";
+import { Demo as WashiTapeDemo } from "@/treatments/washi-tape/demo";
+import { rubberStamp } from "@/treatments/rubber-stamp/metadata";
+import { Demo as RubberStampDemo } from "@/treatments/rubber-stamp/demo";
+import { cornerFold } from "@/treatments/corner-fold/metadata";
+import { Demo as CornerFoldDemo } from "@/treatments/corner-fold/demo";
+import { frostedGlass } from "@/treatments/frosted-glass/metadata";
+import { Demo as FrostedGlassDemo } from "@/treatments/frosted-glass/demo";
+import { brushedMetal } from "@/treatments/brushed-metal/metadata";
+import { Demo as BrushedMetalDemo } from "@/treatments/brushed-metal/demo";
+import { spotlight } from "@/treatments/spotlight/metadata";
+import { Demo as SpotlightDemo } from "@/treatments/spotlight/demo";
+import { neonGlow } from "@/treatments/neon-glow/metadata";
+import { Demo as NeonGlowDemo } from "@/treatments/neon-glow/demo";
+import { animatedGrain } from "@/treatments/animated-grain/metadata";
+import { Demo as AnimatedGrainDemo } from "@/treatments/animated-grain/demo";
+import { shimmer } from "@/treatments/shimmer/metadata";
+import { Demo as ShimmerDemo } from "@/treatments/shimmer/demo";
 
 export interface RegistryEntry {
   meta: Treatment;
@@ -42,6 +62,16 @@ export const registry: Record<string, RegistryEntry> = {
   outline: { meta: outline, Demo: OutlineDemo },
   marker: { meta: marker, Demo: MarkerDemo },
   "gradient-text": { meta: gradientText, Demo: GradientTextDemo },
+  sticker: { meta: sticker, Demo: StickerDemo },
+  "washi-tape": { meta: washiTape, Demo: WashiTapeDemo },
+  "rubber-stamp": { meta: rubberStamp, Demo: RubberStampDemo },
+  "corner-fold": { meta: cornerFold, Demo: CornerFoldDemo },
+  "frosted-glass": { meta: frostedGlass, Demo: FrostedGlassDemo },
+  "brushed-metal": { meta: brushedMetal, Demo: BrushedMetalDemo },
+  spotlight: { meta: spotlight, Demo: SpotlightDemo },
+  "neon-glow": { meta: neonGlow, Demo: NeonGlowDemo },
+  "animated-grain": { meta: animatedGrain, Demo: AnimatedGrainDemo },
+  shimmer: { meta: shimmer, Demo: ShimmerDemo },
 };
 
 export const allTreatments = Object.values(registry).map((e) => e.meta);
